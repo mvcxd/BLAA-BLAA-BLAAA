@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-area {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background-color: #555;
+            overflow: hidden;
+            border: 2px solid #fff;
+            border-radius: 10px;
+        }
+
+        .tree {
+            position: absolute;
+            width: 50px;
+            height: 100px;
+            background-image: url('tree.png');
+            background-size: cover;
+            background-position: center;
+            top: -100px; /* Start off-screen */
+            left: 100px;
+        }
+
+        #car {
+            position: absolute;
+            width: 50px;
+            height: 100px;
+            bottom: 20px;
+            left: 175px;
+            background-image: url('no-bg.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .enemy {
+            position: absolute;
+            width: 50px;
+            height: 100px;
+            background-image: url('enemy.png');
+            background-size: cover;
+            background-position: center;
+            top: -100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-area">
+        <div class="tree" id="tree"></div>
+        <div id="car"></div>
+        <div class="enemy" id="enemy"></div>
+    </div>
+    <script>
+        const car = document.getElementById("car");
+        const enemy = document.getElementById("enemy");
+        const tree = document.getElementById("tree");
+
+        let carPosition = 175; // Initial position of the car
+        const moveStep = 25; // Distance to move per key press
+        const gameAreaWidth = 400; // Width of the game area
+        const carWidth = 50; // Width of the car
+        const gameAreaHeight = 600; // Height of the game area
+        let enemySpeed = 5; // Speed of the enemy
+        let treeSpeed = 3; // Speed of the tree
+        let enemyPosition = { top: -100, left: Math.floor(Math.random() * (gameAreaWidth - carWidth)) }; // Initial enemy position
+        let treePosition = { top: -100, left: Math.floor(Math.random() * (gameAreaWidth - carWidth)) }; // Initial tree position
+
+        // Update enemy position
+        function moveEnemy() {
+            enemyPosition.top += enemySpeed;
+            if (enemyPosition.top >= gameAreaHeight) {
+                // Reset enemy position after it leaves the screen
+                enemyPosition.top = -100;
+                enemyPosition.left = Math.floor(Math.random() * (gameAreaWidth - carWidth));
+            }
+            enemy.style.top = enemyPosition.top + "px";
+            enemy.style.left = enemyPosition.left + "px";
+
+            // Check for collision
+            checkCollision();
+        }
+
+        // Update tree position
+        function moveTree() {
+            treePosition.top += treeSpeed;
+            if (treePosition.top >= gameAreaHeight) {
+                // Reset tree position after it leaves the screen
+                treePosition.top = -100;
+                treePosition.left = Math.floor(Math.random() * (gameAreaWidth - carWidth));
+            }
+            tree.style.top = treePosition.top + "px";
+            tree.style.left = treePosition.left + "px";
+
+            requestAnimationFrame(moveTree);
+        }
+
+        // Check if the car collides with the enemy
+        function checkCollision() {
+            const carRect = car.getBoundingClientRect();
+            const enemyRect = enemy.getBoundingClientRect();
+
+            if (
+                carRect.left < enemyRect.right &&
+                carRect.right > enemyRect.left &&
+                carRect.top < enemyRect.bottom &&
+                carRect.bottom > enemyRect.top
+            ) {
+                alert("Game Over! You hit an enemy.");
+                location.reload(); // Reload the game
+            }
+        }
+
+        // Move the car with "A" and "D" keys
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "a" || event.key === "A") {
+                // Move the car left
+                if (carPosition > 0) {
+                    carPosition -= moveStep;
+                    car.style.left = carPosition + "px";
+                }
+            } else if (event.key === "d" || event.key === "D") {
+                // Move the car right
+                if (carPosition < gameAreaWidth - carWidth) {
+                    carPosition += moveStep;
+                    car.style.left = carPosition + "px";
+                }
+            }
+        });
+
+        // Start the game
+        function startGame() {
+            moveEnemy();
+            moveTree();
+        }
+
+        // Call the startGame function to begin
+        startGame();
+    </script>
+</body>
+</html>
